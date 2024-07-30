@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { width: 300px; padding: 10px; }
+    #invoiceList { margin-bottom: 10px; }
+    #filenameTemplate { width: 100%; margin-bottom: 10px; }
+    #status { margin-top: 10px; }
+    .hint { font-size: 0.8em; color: #666; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h3>Select invoices to download:</h3>
+  <div id="invoiceList"></div>
+  <h4>Filename template:</h4>
+  <input type="text" id="filenameTemplate" value="{date}-{publication}-stripe.pdf">
+  <div class="hint">You can use {date} and {publication} in the filename</div>
+  <button id="downloadSelected">Download Selected</button>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
