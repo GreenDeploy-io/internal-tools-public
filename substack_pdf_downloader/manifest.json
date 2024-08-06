@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Substack PDF Downloader",
-    "version": "24.7.0",
+    "version": "24.7.3",
     "description": "Download PDFs from Substack invoice pages",
     "permissions": [
       "activeTab",

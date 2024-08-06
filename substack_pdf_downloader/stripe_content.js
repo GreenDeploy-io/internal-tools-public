@@ -1,9 +1,19 @@
 const api = typeof chrome !== 'undefined' ? chrome : browser;
 
+function isSubstackInvoice() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.has('publication') && urlParams.get('publication') !== 'unknown-publication';
+}
+
 function downloadPDF() {
+  if (!isSubstackInvoice()) {
+    console.log("Not a Substack invoice. Allowing manual download.");
+    return; // Exit the function, allowing manual downloads for non-Substack invoices
+  }
+
   const downloadLink = Array.from(document.querySelectorAll('a')).find(a => a.textContent.trim() === 'Download invoice');
   if (downloadLink) {
-    // Prevent the default click behavior
+    // Only prevent default for Substack invoices
     downloadLink.addEventListener('click', function(event) {
       event.preventDefault();
     });
@@ -41,6 +51,7 @@ function downloadPDF() {
     api.runtime.sendMessage({ action: "downloadComplete" });
   }
 }
+
 
 // Wait for the page to load before running the script
 if (document.readyState === 'loading') {

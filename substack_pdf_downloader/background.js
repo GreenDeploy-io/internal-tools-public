@@ -1,8 +1,10 @@
 const api = typeof chrome !== 'undefined' ? chrome : browser;
 
+let isDownloadProcessActive = false;
 let substackTabId = null;
 let filenameTemplate = "{date}-{publication}-stripe.pdf";
 let downloadQueue = [];
+
 
 api.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "getCurrentTabId") {
@@ -10,8 +12,11 @@ api.runtime.onMessage.addListener((request, sender, sendResponse) => {
   } else if (request.action === "setSubstackTabId") {
     substackTabId = request.tabId;
   } else if (request.action === "startDownloadQueue") {
+    isDownloadProcessActive = true;
     downloadQueue = request.invoices;
     processNextDownload();
+  } else if (request.action === "isDownloadProcessActive") {
+    sendResponse({ isActive: isDownloadProcessActive });
   } else if (request.action === "getFilenameTemplate") {
     sendResponse({ template: filenameTemplate });
   } else if (request.action === "renameDownload") {
@@ -45,6 +50,7 @@ function processNextDownload() {
       invoice: nextInvoice
     });
   } else {
+    isDownloadProcessActive = false;
     api.tabs.sendMessage(substackTabId, { action: "allDownloadsComplete" });
   }
 }
