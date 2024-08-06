@@ -1,6 +1,22 @@
 const api = typeof chrome !== 'undefined' ? chrome : browser;
 
 document.addEventListener('DOMContentLoaded', function() {
+  chrome.tabs.executeScript({file: 'substack_content.js'}, function() {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+    } else {
+      console.log('Substack content script injected');
+      // Now that the script is injected, we can request the invoices
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+        chrome.tabs.sendMessage(tabs[0].id, {action: "getInvoices"}, function(response) {
+          if (response && response.invoices) {
+            // Your existing code to populate the invoice list
+          }
+        });
+      });
+    }
+  });
+
   api.tabs.query({active: true, currentWindow: true}, function(tabs) {
     api.tabs.sendMessage(tabs[0].id, {action: "getInvoices"}, function(response) {
       if (response && response.invoices) {

@@ -1,5 +1,15 @@
 const api = typeof chrome !== 'undefined' ? chrome : browser;
 
+chrome.browserAction.onClicked.addListener(function(tab) {
+  chrome.tabs.executeScript(tab.id, {file: 'substack_content.js'}, function() {
+    if (chrome.runtime.lastError) {
+      console.error(chrome.runtime.lastError);
+    } else {
+      console.log('Substack content script injected');
+    }
+  });
+});
+
 let isDownloadProcessActive = false;
 let substackTabId = null;
 let filenameTemplate = "{date}-{publication}-stripe.pdf";

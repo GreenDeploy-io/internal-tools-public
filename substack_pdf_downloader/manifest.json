@@ -1,11 +1,10 @@
 {
     "manifest_version": 2,
     "name": "Substack PDF Downloader",
-    "version": "24.7.3",
+    "version": "24.7.8",
     "description": "Download PDFs from Substack invoice pages",
     "permissions": [
       "activeTab",
-      "https://*.substack.com/*",
       "https://*.stripe.com/*",
       "downloads"
     ],
@@ -17,10 +16,6 @@
       "default_popup": "popup.html"
     },
     "content_scripts": [
-      {
-        "matches": ["https://*.substack.com/*"],
-        "js": ["substack_content.js"]
-      },
       {
         "matches": ["https://*.stripe.com/*"],
         "js": ["stripe_content.js"]

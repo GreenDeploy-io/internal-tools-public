@@ -17,10 +17,30 @@ function getInvoices() {
   return invoices;
 }
 
+
 function getPublicationName() {
-  const hostname = window.location.hostname;
-  const match = hostname.match(/^([^.]+)\.substack\.com$/);
-  return match ? match[1] : 'unknown-publication';
+  // Check if it's a Substack subdomain
+  const subdomainMatch = window.location.hostname.match(/^([^.]+)\.substack\.com$/);
+  if (subdomainMatch) {
+    return subdomainMatch[1];
+  }
+
+  // If not a Substack subdomain, it's likely a custom domain
+  // We'll use the hostname as the publication name
+  return window.location.hostname;
+}
+
+function isSubstackReceiptPage() {
+  // Check for a link to Substack's privacy policy
+  const hasSubstackPrivacyLink = !!document.querySelector('a[href="https://substack.com/privacy"]');
+
+  // Check for the "Payment & receipt history" header
+  const hasPaymentHeader = Array.from(document.querySelectorAll('h2')).some(
+    h2 => h2.textContent.trim() === 'Payment & receipt history'
+  );
+
+  // Return true only if both conditions are met
+  return hasSubstackPrivacyLink && hasPaymentHeader;
 }
 
 function processInvoice(invoice) {
@@ -54,20 +74,25 @@ function processInvoice(invoice) {
   }
 }
 
-api.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.action === "getInvoices") {
-    sendResponse({invoices: getInvoices()});
-  } else if (request.action === "processInvoice") {
-    processInvoice(request.invoice);
-  } else if (request.action === "allDownloadsComplete") {
-    console.log("All downloads completed");
-  }
-});
+if (isSubstackReceiptPage()) {
+  console.log("Substack content script loaded");
+  api.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+    if (request.action === "getInvoices") {
+      sendResponse({invoices: getInvoices()});
+    } else if (request.action === "processInvoice") {
+      processInvoice(request.invoice);
+    } else if (request.action === "allDownloadsComplete") {
+      console.log("All downloads completed");
+    }
+  });
 
-api.runtime.sendMessage({action: "getCurrentTabId"}, function(response) {
-  if (response && response.tabId) {
-    api.runtime.sendMessage({action: "setSubstackTabId", tabId: response.tabId});
-  }
-});
+  api.runtime.sendMessage({action: "getCurrentTabId"}, function(response) {
+    if (response && response.tabId) {
+      api.runtime.sendMessage({action: "setSubstackTabId", tabId: response.tabId});
+    }
+  });
 
-console.log("Substack content script setup complete");
+  console.log("Substack content script setup complete");
+} else {
+  console.log("Not a Substack page, content script not activated");
+}
